@@ -40,6 +40,11 @@ export function log(string) {
 
 export const proceedStack = [];
 export const GlobalLayers = [];
+const implicitLayers = [];
+const implicitlyActivated = Symbol('condition');
+function getActiveImplicitLayers() {
+  return implicitLayers.filter(l => l[implicitlyActivated]());
+}
 // hack, to work around absence of identity dictionaries in JavaScript
 // we could perhaps limit ourselfs to layer only those objects that respond to object.id()
 // because working with objects is a serialization problem in itself, perhaps we should
@@ -243,7 +248,7 @@ export function currentLayers() {
   if (!current.composition) {
     current.composition = composeLayers(LayerStack);
   }
-  return current.composition;
+  return getActiveImplicitLayers().concat(current.composition);
 };
 
 // clear cached layer compositions
@@ -582,6 +587,11 @@ export class Layer {
 
   // Implicit layer activation
   activeWhile(cond) {
+    if (!implicitLayers.includes(layer)) {
+      implicitLayers.push(layer)
+    }
+    this[implicitlyActivated] = cond;
+
     return this;
   }
 
@@ -609,8 +619,11 @@ export class Layer {
   isGlobal () {
     return GlobalLayers.indexOf(this) !== -1;
   }
-  
-  // Debugging
+  isActive() {
+      return this.isGlobal() || getActiveImplicitLayers().includes(this);
+  }
+
+    // Debugging
   toString () {
     return String(this.name); // could be a symbol
   }
