@@ -21,90 +21,90 @@ describe('Implicit Layer Activation', function() {
         const obj = fixture(),
             layer = new cop.Layer().activeWhile((() => obj.prop >= 33));
 
-        expect(layer.isGlobal()).to.be.false;
+        expect(layer.isActive()).to.be.false;
 
         obj.prop = 42;
-        expect(layer.isGlobal()).to.be.true;
+        expect(layer.isActive()).to.be.true;
     });
 
-    xit('activates immediately if the condition is already true', () => {
+    it('activates immediately if the condition is already true', () => {
         const obj = { prop: 42},
             layer = new cop.Layer().activeWhile((() => obj.prop >= 33));
 
-        expect(layer.isGlobal()).to.be.true;
+        expect(layer.isActive()).to.be.true;
 
         obj.prop = 43;
-        expect(layer.isGlobal()).to.be.true;
+        expect(layer.isActive()).to.be.true;
     });
 
-    xit('distinguishes multiple layers', () => {
+    it('distinguishes multiple layers', () => {
         const obj1 = { prop: 17},
             obj2 = { prop: 42},
             l1 = new cop.Layer().activeWhile((() => obj1.prop >= 33)),
             l2 = new cop.Layer().activeWhile((() => obj2.prop >= 33));
 
-        expect(l1.isGlobal()).to.be.false;
-        expect(l2.isGlobal()).to.be.true;
+        expect(l1.isActive()).to.be.false;
+        expect(l2.isActive()).to.be.true;
 
         obj1.prop = 42;
         obj2.prop = 43;
 
-        expect(l1.isGlobal()).to.be.true;
-        expect(l2.isGlobal()).to.be.true;
+        expect(l1.isActive()).to.be.true;
+        expect(l2.isActive()).to.be.true;
     });
 
-    xit('deactivating an immediately activated layer', () => {
+    it('deactivating an immediately activated layer', () => {
         const obj = { prop: 42},
             layer = new cop.Layer().activeWhile((() => obj.prop >= 33));
 
-        expect(layer.isGlobal()).to.be.true;
+        expect(layer.isActive()).to.be.true;
 
         obj.prop = 17;
 
-        expect(layer.isGlobal()).to.be.false;
+        expect(layer.isActive()).to.be.false;
     });
 
-    xit('jump between active and inactive', () => {
+    it('jump between active and inactive', () => {
         const obj = { prop: 42},
             layer = new cop.Layer().activeWhile((() => obj.prop >= 33));
-        expect(layer.isGlobal()).to.be.true;
+        expect(layer.isActive()).to.be.true;
 
         obj.prop = 17;
-        expect(layer.isGlobal()).to.be.false;
+        expect(layer.isActive()).to.be.false;
 
         obj.prop = 42;
-        expect(layer.isGlobal()).to.be.true;
+        expect(layer.isActive()).to.be.true;
 
         obj.prop = 17;
         obj.prop = 0;
-        expect(layer.isGlobal()).to.be.false;
+        expect(layer.isActive()).to.be.false;
 
         obj.prop = 42;
-        expect(layer.isGlobal()).to.be.true;
+        expect(layer.isActive()).to.be.true;
     });
 
-    xit('handle multiple implicitly activated layers', function() {
+    it('handle multiple implicitly activated layers', function() {
         const obj = fixture();
 
         const layer1 = new cop.Layer().activeWhile((() => obj.prop > 10));
         const layer2 = new cop.Layer().activeWhile((() => obj.prop > 20));
-        expect(layer1.isGlobal()).to.be.true;
-        expect(layer2.isGlobal()).to.be.false;
+        expect(layer1.isActive()).to.be.true;
+        expect(layer2.isActive()).to.be.false;
 
         obj.prop = 33;
-        expect(layer1.isGlobal()).to.be.true;
-        expect(layer2.isGlobal()).to.be.true;
+        expect(layer1.isActive()).to.be.true;
+        expect(layer2.isActive()).to.be.true;
 
         obj.prop = 0;
-        expect(layer1.isGlobal()).to.be.false;
-        expect(layer2.isGlobal()).to.be.false;
+        expect(layer1.isActive()).to.be.false;
+        expect(layer2.isActive()).to.be.false;
     });
 
-    xit('implicitly activated layers are in current layers', function() {
+    it('implicitly activated layers are in current layers', function() {
         const obj = fixture();
 
-        const layer1 = new cop.Layer().activeWhile((() => obj.prop > 10));
-        const layer2 = new cop.Layer().activeWhile((() => obj.prop > 20));
+        const layer1 = new cop.Layer('1234').activeWhile(() => obj.prop > 10);
+        const layer2 = new cop.Layer('5678').activeWhile(() => obj.prop > 20);
         expect(cop.currentLayers()).to.include(layer1);
         expect(cop.currentLayers()).not.to.include(layer2);
 
@@ -117,7 +117,7 @@ describe('Implicit Layer Activation', function() {
         expect(cop.currentLayers()).not.to.include(layer2);
     });
 
-    xit('implicitly activated layers refine an object', () => {
+    it('implicitly activated layers refine an object', () => {
         const obj = {
             prop: 17,
             f() { return 1; }
@@ -135,7 +135,7 @@ describe('Implicit Layer Activation', function() {
         expect(obj.f()).to.equal(1);
     });
 
-    xit('can refine multiple objects per layer', function() {
+    it('can refine multiple objects per layer', function() {
         const obj = fixture();
 
         const o1 = {f() {return 1}};
@@ -163,7 +163,7 @@ describe('Implicit Layer Activation', function() {
         expect(o2.f()).to.equal(6);
     });
 
-    xit('implicitly activated layers refine a class', () => {
+    it('implicitly activated layers refine a class', () => {
         const obj = fixture();
 
         class Example {
