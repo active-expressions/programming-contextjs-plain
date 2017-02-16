@@ -579,7 +579,12 @@ export class Layer {
     const partialLayer = ensurePartialLayer(this, object);
     partialLayer.reinstall();
   }
-  
+
+  // Implicit layer activation
+  activeWhile(cond) {
+    return this;
+  }
+
   // Layer activation
   beGlobal () {
     enableLayer(this);
