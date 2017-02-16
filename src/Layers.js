@@ -41,9 +41,8 @@ export function log(string) {
 export const proceedStack = [];
 export const GlobalLayers = [];
 const implicitLayers = [];
-const implicitlyActivated = Symbol('condition');
 function getActiveImplicitLayers() {
-  return implicitLayers.filter(l => l[implicitlyActivated]());
+  return implicitLayers.filter(layer => layer.implicitlyActivated());
 }
 // hack, to work around absence of identity dictionaries in JavaScript
 // we could perhaps limit ourselfs to layer only those objects that respond to object.id()
@@ -248,8 +247,8 @@ export function currentLayers() {
   if (!current.composition) {
     current.composition = composeLayers(LayerStack);
   }
-  return getActiveImplicitLayers().concat(current.composition);
-};
+  return current.composition.concat(getActiveImplicitLayers());
+}
 
 // clear cached layer compositions
 export function invalidateLayerComposition() {
@@ -483,6 +482,7 @@ export class Layer {
       this._name = Symbol('COP Layer');
     }
     this._context = context;
+    this.implicitlyActivated = () => false;
     // this._layeredFunctionsList = {};
   }
   
@@ -586,11 +586,11 @@ export class Layer {
   }
 
   // Implicit layer activation
-  activeWhile(cond) {
-    if (!implicitLayers.includes(layer)) {
-      implicitLayers.push(layer)
+  activeWhile(condition) {
+    if (!implicitLayers.includes(this)) {
+      implicitLayers.push(this);
     }
-    this[implicitlyActivated] = cond;
+    this.implicitlyActivated = condition;
 
     return this;
   }

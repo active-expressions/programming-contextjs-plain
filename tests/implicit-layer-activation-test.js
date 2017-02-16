@@ -19,7 +19,7 @@ describe('Implicit Layer Activation', function() {
 
     it('activates a layer when the expression result becomes true', () => {
         const obj = fixture(),
-            layer = new cop.Layer().activeWhile((() => obj.prop >= 33));
+            layer = new cop.Layer().activeWhile(() => obj.prop >= 33);
 
         expect(layer.isActive()).to.be.false;
 
